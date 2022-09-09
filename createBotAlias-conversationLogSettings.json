@@ -1,0 +1,13 @@
+{
+    "textLogSettings": [
+      {
+        "enabled": true,
+        "destination": {
+          "cloudWatch": {
+            "cloudWatchLogGroupArn": "replaceme",
+            "logPrefix": "NLAIAoD"
+          }
+        }
+      }
+    ]
+  }

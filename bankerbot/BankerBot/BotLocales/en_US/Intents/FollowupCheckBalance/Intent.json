@@ -1,0 +1,44 @@
+{
+    "name": "FollowupCheckBalance",
+    "identifier": "OZGQYUIUIT",
+    "description": "Intent to allow a follow-up balance check request without authentication",
+    "parentIntentSignature": null,
+    "sampleUtterances": [
+        {
+            "utterance": "How about my {accountType} account"
+        },
+        {
+            "utterance": "What about {accountType}"
+        },
+        {
+            "utterance": "And in {accountType} ?"
+        }
+    ],
+    "intentConfirmationSetting": null,
+    "intentClosingSetting": null,
+    "inputContexts": [
+        {
+            "name": "contextCheckBalance",
+            "timeToLiveInSeconds": null,
+            "turnsToLive": null
+        }
+    ],
+    "outputContexts": null,
+    "kendraConfiguration": null,
+    "dialogCodeHook": null,
+    "fulfillmentCodeHook": {
+        "fulfillmentUpdatesSpecification": null,
+        "postFulfillmentStatusSpecification": null,
+        "enabled": true
+    },
+    "slotPriorities": [
+        {
+            "priority": 2,
+            "slotName": "dateOfBirth"
+        },
+        {
+            "priority": 1,
+            "slotName": "accountType"
+        }
+    ]
+}

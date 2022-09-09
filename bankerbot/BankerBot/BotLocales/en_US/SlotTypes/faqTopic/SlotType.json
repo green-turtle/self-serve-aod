@@ -1,0 +1,127 @@
+{
+    "name": "faqTopic",
+    "identifier": "LQU37VROPB",
+    "description": "FAQ topics",
+    "slotTypeValues": [
+        {
+            "sampleValue": {
+                "value": "loan"
+            },
+            "synonyms": [
+                {
+                    "value": "submit a loan application"
+                },
+                {
+                    "value": "a loan application"
+                },
+                {
+                    "value": "apply for a loan"
+                },
+                {
+                    "value": "loan application"
+                }
+            ]
+        },
+        {
+            "sampleValue": {
+                "value": "fees"
+            },
+            "synonyms": [
+                {
+                    "value": "account fees"
+                },
+                {
+                    "value": "checking account fees"
+                },
+                {
+                    "value": "savings account fees"
+                },
+                {
+                    "value": "credit account fees"
+                },
+                {
+                    "value": "potential fees"
+                },
+                {
+                    "value": "fees included"
+                },
+                {
+                    "value": "fees i might incur"
+                }
+            ]
+        },
+        {
+            "sampleValue": {
+                "value": "login"
+            },
+            "synonyms": [
+                {
+                    "value": "logging in"
+                },
+                {
+                    "value": "logging on"
+                },
+                {
+                    "value": "log on"
+                },
+                {
+                    "value": "signing in"
+                },
+                {
+                    "value": "sign on"
+                },
+                {
+                    "value": "password"
+                },
+                {
+                    "value": "pass word"
+                },
+                {
+                    "value": "user id"
+                },
+                {
+                    "value": "userid"
+                },
+                {
+                    "value": "login to the website"
+                },
+                {
+                    "value": "logging into the website"
+                },
+                {
+                    "value": "log on to the website"
+                },
+                {
+                    "value": "sign on to the website"
+                },
+                {
+                    "value": "signing on to the web site"
+                },
+                {
+                    "value": "logon"
+                }
+            ]
+        },
+        {
+            "sampleValue": {
+                "value": "deposits"
+            },
+            "synonyms": [
+                {
+                    "value": "make a deposit"
+                },
+                {
+                    "value": "deposit a check"
+                },
+                {
+                    "value": "deposit a payroll check"
+                }
+            ]
+        }
+    ],
+    "parentSlotTypeSignature": null,
+    "valueSelectionSetting": {
+        "resolutionStrategy": "TOP_RESOLUTION",
+        "regexFilter": null
+    }
+}

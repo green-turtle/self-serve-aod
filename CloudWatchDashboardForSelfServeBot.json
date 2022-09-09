@@ -1,0 +1,189 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Resources": {
+        "LexAnalyticsCWLDashboard": {
+            "Type": "AWS::CloudWatch::Dashboard",
+            "Properties": {
+                "DashboardName": "Conversation-Analytics",
+                "DashboardBody": {
+                    "Fn::Join": [
+                        "",
+                        [
+                            {
+                                "Fn::Sub": '
+                                {
+                                    "widgets": [
+                                        {
+                                            "height": 3,
+                                            "width": 6,
+                                            "y": 1,
+                                            "x": 0,
+                                            "type": "log",
+                                            "properties": {
+                                                "query": "SOURCE 'selfserve-logs' | fields @timestamp, @message | stats count_distinct(userId) as Count_",
+                                                "region": "us-east-1",
+                                                "stacked": false,
+                                                "title": "Users",
+                                                "view": "table"
+                                            }
+                                        },
+                                        {
+                                            "height": 3,
+                                            "width": 6,
+                                            "y": 1,
+                                            "x": 6,
+                                            "type": "log",
+                                            "properties": {
+                                                "query": "SOURCE 'selfserve-logs' | fields @timestamp, @message | stats count_distinct(sessionId) as Count_",
+                                                "region": "us-east-1",
+                                                "stacked": false,
+                                                "title": "Sessions",
+                                                "view": "table"
+                                            }
+                                        },
+                                        {
+                                            "height": 3,
+                                            "width": 6,
+                                            "y": 1,
+                                            "x": 12,
+                                            "type": "log",
+                                            "properties": {
+                                                "query": "SOURCE 'selfserve-logs' | fields @timestamp, @message | stats count(inputTranscript) as Count_",
+                                                "region": "us-east-1",
+                                                "stacked": false,
+                                                "title": "Utterances",
+                                                "view": "table"
+                                            }
+                                        },
+                                        {
+                                            "height": 6,
+                                            "width": 15,
+                                            "y": 4,
+                                            "x": 0,
+                                            "type": "log",
+                                            "properties": {
+                                                "query": "SOURCE 'selfserve-logs' | FIELDS @message | filter sessionState.intent.state = 'Fulfilled'| stats count(sessionState.intent.name) as Count_ by sessionState.intent.name as intent | sort Count_ desc | limit 5",
+                                                "region": "us-east-1",
+                                                "stacked": false,
+                                                "title": "Top Intents ( Fulfilled )",
+                                                "view": "bar"
+                                            }
+                                        },
+                                        {
+                                            "height": 3,
+                                            "width": 6,
+                                            "y": 1,
+                                            "x": 18,
+                                            "type": "log",
+                                            "properties": {
+                                                "query": "SOURCE 'selfserve-logs' | FIELDS @message | filter missedUtterance = 1 | stats count(*) as Count_ ",
+                                                "region": "us-east-1",
+                                                "stacked": false,
+                                                "title": "Missed Utterances",
+                                                "view": "table"
+                                            }
+                                        },
+                                        {
+                                            "height": 6,
+                                            "width": 9,
+                                            "y": 4,
+                                            "x": 15,
+                                            "type": "log",
+                                            "properties": {
+                                                "query": "SOURCE 'selfserve-logs' | FIELDS @message | filter missedUtterance = 1 | display inputTranscript",
+                                                "region": "us-east-1",
+                                                "stacked": false,
+                                                "title": "Missed Utterances",
+                                                "view": "table"
+                                            }
+                                        },
+                                        {
+                                            "height": 6,
+                                            "width": 12,
+                                            "y": 16,
+                                            "x": 0,
+                                            "type": "log",
+                                            "properties": {
+                                                "query": "SOURCE 'selfserve-logs' | FIELDS @message | stats count(*) as Count_ by sentimentResponse.sentimentLabel as Sentiment",
+                                                "region": "us-east-1",
+                                                "stacked": false,
+                                                "title": "Sentiment Analysis",
+                                                "view": "bar"
+                                            }
+                                        },
+                                        {
+                                            "height": 6,
+                                            "width": 6,
+                                            "y": 16,
+                                            "x": 12,
+                                            "type": "log",
+                                            "properties": {
+                                                "query": "SOURCE 'selfserve-logs' | FIELDS @message | filter sentimentResponse.sentimentLabel like /NEGATIVE/ | display inputTranscript",
+                                                "region": "us-east-1",
+                                                "stacked": false,
+                                                "title": "Negative Sentiment Utterances",
+                                                "view": "table"
+                                            }
+                                        },
+                                        {
+                                            "height": 6,
+                                            "width": 6,
+                                            "y": 16,
+                                            "x": 18,
+                                            "type": "log",
+                                            "properties": {
+                                                "query": "SOURCE 'selfserve-logs' | FIELDS @message | filter sentimentResponse.sentimentLabel like /MIXED/ | display inputTranscript",
+                                                "region": "us-east-1",
+                                                "stacked": false,
+                                                "title": "Mixed Sentiment Utterances",
+                                                "view": "table"
+                                            }
+                                        },
+                                        {
+                                            "height": 6,
+                                            "width": 12,
+                                            "y": 10,
+                                            "x": 0,
+                                            "type": "log",
+                                            "properties": {
+                                                "query": "SOURCE 'selfserve-logs' | FIELDS @message | stats count_distinct(requestId) as Requests by userId as User | sort Requests desc | limit 10",
+                                                "region": "us-east-1",
+                                                "stacked": false,
+                                                "title": "Top 10 Users - Usage",
+                                                "view": "table"
+                                            }
+                                        },
+                                        {
+                                            "height": 6,
+                                            "width": 12,
+                                            "y": 10,
+                                            "x": 12,
+                                            "type": "log",
+                                            "properties": {
+                                                "query": "SOURCE 'selfserve-logs' | FIELDS @message | stats count_distinct(sessionId) as Sessions by userId as User | sort Sessions desc | limit 10",
+                                                "region": "us-east-1",
+                                                "stacked": false,
+                                                "title": "Top 10 Users - Sessions",
+                                                "view": "table"
+                                            }
+                                        },
+                                        {
+                                            "height": 1,
+                                            "width": 24,
+                                            "y": 0,
+                                            "x": 0,
+                                            "type": "text",
+                                            "properties": {
+                                                "markdown": " # Conversation Analytics "
+                                            }
+                                        }
+                                    ]
+                                }'
+                            }
+                        ]
+                    ]
+                }
+            }
+        }
+    }
+}

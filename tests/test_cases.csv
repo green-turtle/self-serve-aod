@@ -1,0 +1,24 @@
+Test Case,Step,Utterance,Session Attributes,Expected Response,Expected Intent,Expected State
+1,1,what's the balance in checking?,userPhone:+14085550123,"For verification purposes, what is your date of birth?",CheckBalance,ElicitSlot
+1,2,2/3/85,,.*[Tt]he balance on your Checking account.*,CheckBalance,Close
+2,1,how much is in my savings account?,userPhone:+12125550123,"For verification purposes, what is your date of birth?",CheckBalance,ElicitSlot
+2,2,5/13/71,,.*[Tt]he balance on your Savings account.*,CheckBalance,Close
+3,1,check my balance,userPhone:+12015550123,For which account would you like your balance?,CheckBalance,ElicitSlot
+3,2,savings,,"For verification purposes, what is your date of birth?",CheckBalance,ElicitSlot
+3,3,4/28/92,,.*[Tt]he balance on your Savings account.*,CheckBalance,Close
+4,1,check the balance for my credit card,userPhone:+12015550123,"For verification purposes, what is your date of birth?",CheckBalance,ElicitSlot
+4,2,12/28/88,,.*[Tt]he balance on your Credit account is.*,CheckBalance,Close
+6,1,transfer $500 from checking to savings,userPhone:+19085550123,Got it. So we are transferring 500 from Checking to Savings. Can I go ahead with the transfer?,TransferFunds,ConfirmIntent
+6,2,yes,,The transfer is complete. 500 should now be available in your Savings account.,TransferFunds,Close
+7,1,I want to make a transfer,userPhone:+14085550123,Which account would you like to transfer from?,TransferFunds,ElicitSlot
+7,2,savings,,Which account are you transferring to?,TransferFunds,ElicitSlot
+7,3,checking,,How much money would you like to transfer?,TransferFunds,ElicitSlot
+7,4,1000,,Got it. So we are transferring 1000 from Savings to Checking. Can I go ahead with the transfer?,TransferFunds,ConfirmIntent
+7,5,yes,,The transfer is complete. 1000 should now be available in your Checking account.,TransferFunds,Close
+8,1,representative,userPhone:+19088550123,"No problem, let me connect you to an agent now.",Agent,Close
+9,1,what are my options,userPhone:+14085550123,.*You can.*,Help,Close
+10,1,I'm all set,userPhone:+14085550123,".*OK. Thanks for contacting us today, and we appreciate your business.*",Goodbye,Close
+11,1,what are your checking account fees,userPhone:+14085550123,You want information about fees.,FAQ,Close
+12,1,what are the fees associated with my checking account?,userPhone:+14085550123,You want information about fees.,FAQ,Close
+13,1,i need to deposit a check,userPhone:+14085550123,You want information about deposits.,FAQ,Close
+<end>,,,,,,

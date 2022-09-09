@@ -1,0 +1,103 @@
+{
+    "name": "ApplyForALoan",
+    "identifier": "7MAOVO8D9D",
+    "description": "Help user apply for a loan",
+    "parentIntentSignature": null,
+    "sampleUtterances": [
+        {
+            "utterance": "I would like to apply for a loan"
+        },
+        {
+            "utterance": "Can I apply for a loan?"
+        },
+        {
+            "utterance": "I want to apply for a loan"
+        },
+        {
+            "utterance": "I'd like to apply for {loanAmount} of {loanType}"
+        },
+        {
+            "utterance": "Can I apply {loanAmount} of {loanType}"
+        },
+        {
+            "utterance": "Would you be able to help me apply for a loan?"
+        },
+        {
+            "utterance": "Need to apply for a loan"
+        }
+    ],
+    "intentConfirmationSetting": {
+        "isActive": true,
+        "declinationResponse": {
+            "allowInterrupt": true,
+            "messageGroupsList": [
+                {
+                    "message": {
+                        "imageResponseCard": null,
+                        "ssmlMessage": null,
+                        "customPayload": null,
+                        "plainTextMessage": {
+                            "value": "The application has been cancelled"
+                        }
+                    },
+                    "variations": null
+                }
+            ]
+        },
+        "promptSpecification": {
+            "allowInterrupt": true,
+            "messageGroupsList": [
+                {
+                    "message": {
+                        "imageResponseCard": null,
+                        "ssmlMessage": null,
+                        "customPayload": null,
+                        "plainTextMessage": {
+                            "value": "Got it. So we are applying for {loanAmount} of {loanType} loan. Can I go ahead to put the application together?"
+                        }
+                    },
+                    "variations": null
+                }
+            ],
+            "maxRetries": 2
+        }
+    },
+    "intentClosingSetting": {
+        "isActive": true,
+        "closingResponse": {
+            "allowInterrupt": true,
+            "messageGroupsList": [
+                {
+                    "message": {
+                        "imageResponseCard": null,
+                        "ssmlMessage": null,
+                        "customPayload": null,
+                        "plainTextMessage": {
+                            "value": "The application has been filed. {loanAmount} of {loanType} loan pending for approval."
+                        }
+                    },
+                    "variations": null
+                }
+            ]
+        }
+    },
+    "inputContexts": null,
+    "outputContexts": null,
+    "kendraConfiguration": null,
+    "dialogCodeHook": null,
+    "fulfillmentCodeHook": {
+        "fulfillmentUpdatesSpecification": null,
+        "postFulfillmentStatusSpecification": null,
+        "enabled": false
+    },
+    "slotPriorities": [
+        {
+            "priority": 2,
+            "slotName": "loanAmount"
+        },
+        {
+            "priority": 1,
+            "slotName": "loanType"
+        }
+    ]
+}

@@ -1,0 +1,55 @@
+{
+    "name": "Goodbye",
+    "identifier": "YCFYHWED8U",
+    "description": "Goodbye intent",
+    "parentIntentSignature": null,
+    "sampleUtterances": [
+        {
+            "utterance": "no thanks"
+        },
+        {
+            "utterance": "I'm all set"
+        },
+        {
+            "utterance": "goodbye"
+        },
+        {
+            "utterance": "I'm done"
+        },
+        {
+            "utterance": "no I am good thanks"
+        },
+        {
+            "utterance": "that's it"
+        },
+        {
+            "utterance": "no thank you"
+        }
+    ],
+    "intentConfirmationSetting": null,
+    "intentClosingSetting": {
+        "isActive": true,
+        "closingResponse": {
+            "allowInterrupt": true,
+            "messageGroupsList": [
+                {
+                    "message": {
+                        "imageResponseCard": null,
+                        "ssmlMessage": null,
+                        "customPayload": null,
+                        "plainTextMessage": {
+                            "value": "OK. Thanks for contacting us today, and we appreciate your business."
+                        }
+                    },
+                    "variations": null
+                }
+            ]
+        }
+    },
+    "inputContexts": null,
+    "outputContexts": null,
+    "kendraConfiguration": null,
+    "dialogCodeHook": null,
+    "fulfillmentCodeHook": null,
+    "slotPriorities": []
+}

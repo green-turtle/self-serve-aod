@@ -1,0 +1,72 @@
+{
+    "name": "faqQuestion",
+    "identifier": "LQU37VROPA",
+    "description": "Different types of FAQ questions",
+    "slotTypeValues": [
+        {
+            "sampleValue": {
+                "value": "question regarding"
+            },
+            "synonyms": null
+        },
+        {
+            "sampleValue": {
+                "value": "how do i"
+            },
+            "synonyms": null
+        },
+        {
+            "sampleValue": {
+                "value": "what are the"
+            },
+            "synonyms": null
+        },
+        {
+            "sampleValue": {
+                "value": "i'm having trouble"
+            },
+            "synonyms": null
+        },
+        {
+            "sampleValue": {
+                "value": "i am having trouble"
+            },
+            "synonyms": null
+        },
+        {
+            "sampleValue": {
+                "value": "i can not"
+            },
+            "synonyms": null
+        },
+        {
+            "sampleValue": {
+                "value": "i would like to"
+            },
+            "synonyms": null
+        },
+        {
+            "sampleValue": {
+                "value": "i can't"
+            },
+            "synonyms": null
+        },
+        {
+            "sampleValue": {
+                "value": "issue with"
+            },
+            "synonyms": null
+        },
+        {
+            "sampleValue": {
+                "value": "i have a question about"
+            },
+            "synonyms": null
+        }
+    ],
+    "parentSlotTypeSignature": null,
+    "valueSelectionSetting": {
+        "resolutionStrategy": "ORIGINAL_VALUE",
+        "regexFilter": null
+    }
+}

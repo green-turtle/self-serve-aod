@@ -1,0 +1,37 @@
+{
+    "name": "dateOfBirth",
+    "identifier": "GXJTQ8E4HW",
+    "description": null,
+    "slotTypeName": "AMAZON.Date",
+    "obfuscationSetting": null,
+    "valueElicitationSetting": {
+        "promptSpecification": {
+            "allowInterrupt": true,
+            "messageGroupsList": [
+                {
+                    "message": {
+                        "imageResponseCard": null,
+                        "ssmlMessage": null,
+                        "customPayload": null,
+                        "plainTextMessage": {
+                            "value": "For verification purposes, what is your date of birth?"
+                        }
+                    },
+                    "variations": null
+                }
+            ],
+            "maxRetries": 2
+        },
+        "slotConstraint": "Required",
+        "defaultValueSpecification": {
+            "defaultValueList": [
+                {
+                    "defaultValue": "#contextCheckBalance.dateOfBirth"
+                }
+            ]
+        },
+        "sampleUtterances": null,
+        "waitAndContinueSpecification": null
+    },
+    "multipleValuesSetting": null
+}

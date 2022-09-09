@@ -1,0 +1,299 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: >
+  This template uses AWS CodeBuild and AWS CodePipeline to create a Lex build pipeline
+
+Parameters:
+  Repo:
+    Type: String
+    Default: 'selfserve'
+    Description: The CodeCommit repository name
+    MinLength: 1
+
+  # GitHubRepo:
+  #   Type: String
+  #   Default: repo_name_here
+  #   Description: The repo name of the sample service
+  #   MinLength: 1
+
+  # GitHubRepoOwner:
+  #   Type: String
+  #   Description: GitHub username of repo owner
+  #   Default: owner_name_here
+  #   MinLength: 1
+
+  # GitHubToken:
+  #   Type: String
+  #   Default: "/dir1/dir2/name"
+  #   Description: >
+  #     GitHub OAuth Token with access to the repo (https://github.com/settings/tokens)
+  #   Type: AWS::SSM::Parameter::Value<String>
+  #   MinLength: 1
+
+  BotName:
+    Description: 'Lex bot name'
+    Default: 'selfserve'
+    Type: 'String'
+
+  ArtifactBucketName:
+    Description: 'S3 artifact name'
+    Default: 'selfserve-artifactstore'
+    Type: 'String'
+
+  BotAlias:
+    Description: 'Lex bot alias name'
+    Default: 'test'
+    Type: 'String'
+
+  #Environment:
+  #  Description: 'Lex bot environment type for SSM parameters'
+  #  Default: 'dev'
+  #  Type: 'String'
+
+  #AppConfig:
+  #  Description: 'Lex bot application configuration key for SSM parameters'
+  #  Default: '/a205257/APISECRETS'
+  #  Type: 'String'
+
+  LogGroupName:
+    Description: Name of the CloudWatch Logs log group where Amazon Lex will store conversation log data
+    Default: 'selfserve-logs'
+    Type: String
+
+  ConversationLogsRoleARN:
+    Description: 'IAM role for Lex to write conversation logs to CloudWatch Logs'
+    Type: 'String'
+
+  LambdaExecutionRoleARN:
+    Description: 'ARN of the Lambda role to use'
+    Type: 'String'
+
+  CodePipelineRoleARN:
+    Description: 'ARN of the CodePipleine role to use'
+    Type: 'String'
+
+  CodeBuildServiceRoleARN:
+    Description: 'ARN of the CodeBuild role to use'
+    Type: 'String'
+
+  BotBuilderRoleARN:
+    Description: 'ARN of the Bot Builder role to use'
+    Type: 'String'
+
+  QnABotName:
+    Description: 'Optional QnABot for FAQs'
+    Type: 'String'
+
+  QnABotAlias:
+    Description: 'Optional QnABot Alias for FAQs'
+    Type: 'String'
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterLabels:
+      Repo:
+        default: "Repo"
+      # GitHubRepo:
+      #   default: "Repo"
+      # GitHubRepoOwner:
+      #   default: "Owner"
+      # GitHubToken:
+      #   default: "Personal Access Token"
+      BotName:
+        default: "Lex bot"
+      BotAlias:
+        default: "Lex bot alias"
+      #Environment:
+      #  default: "Lex bot environment"
+      #AppConfig:
+      #  default: "Lex bot configuration key"
+      LogGroupName:
+        default: "Conversation logs log group name"
+    ParameterGroups:
+      - Label:
+          default: Source Repository Configuration
+        Parameters:
+          - Repo
+          # - GitHubRepo
+          # - GitHubRepoOwner
+          # - GitHubToken
+      - Label:
+          default: Bot Configuration
+        Parameters:
+          - BotName
+          - BotAlias
+          #- Environment
+          #- AppConfig
+          - LambdaExecutionRoleARN
+      - Label:
+          default: Conversation Logs Log Group
+        Parameters:
+          - LogGroupName
+          - ConversationLogsRoleARN
+      - Label:
+          default: Code Pipeline
+        Parameters:
+          - CodePipelineRoleARN
+          - CodeBuildServiceRoleARN
+          - ArtifactBucketName
+      - Label:
+          default: Optional Parameters
+        Parameters:
+          - QnABotName
+          - QnABotAlias
+
+Resources:
+  LexConversationLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties: 
+      LogGroupName: !Ref LogGroupName
+      RetentionInDays: 30
+
+  # Artifact Bucket used by CodePipeline and CodeBuild
+  ArtifactStore:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Sub "${ArtifactBucketName}-${AWS::AccountId}"
+      VersioningConfiguration:
+        Status: Enabled
+
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub ${AWS::StackName}-build
+      Description: "CodeBuild project to create the Lex bot"
+      ServiceRole: !Ref CodeBuildServiceRoleARN
+      Artifacts:
+        Type: CODEPIPELINE
+      TimeoutInMinutes: 10
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: "buildspec.yml"
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:3.0
+        EnvironmentVariables:
+          - Name: "BOT"
+            Type: "PLAINTEXT"
+            Value: !Sub "${BotName}"
+          - Name: "BOT_ALIAS"
+            Type: "PLAINTEXT"
+            Value: !Sub "${BotAlias}"
+          - Name: "BOT_LOG_GROUP_ROLE_ARN"
+            Type: "PLAINTEXT"
+            Value: !Sub "${ConversationLogsRoleARN}"
+          - Name: "BOT_LOG_GROUP_ARN"
+            Type: "PLAINTEXT"
+            Value: !GetAtt LexConversationLogGroup.Arn
+          - Name: "LAMBDA_ROLE_ARN"
+            Type: "PLAINTEXT"
+            Value: !Ref LambdaExecutionRoleARN
+          - Name: "REQUESTS_PACKAGE"
+            Type: "PLAINTEXT"
+            Value: !Sub "${BotName}_requests_python"
+          - Name: "QNABOT"
+            Type: "PLAINTEXT"
+            Value: !Sub "${QnABotName}"
+          - Name: "QNABOTALIAS"
+            Type: "PLAINTEXT"
+            Value: !Sub "${QnABotAlias}"
+          - Name: "BOT_BUILDER_ROLE"
+            Type: "PLAINTEXT"
+            Value: !Ref BotBuilderRoleARN
+          #- Name: "ENV"
+          #  Type: "PLAINTEXT"
+          #  Value: !Sub "${Environment}"
+          #- Name: "APP_CONFIG_PATH"
+          #  Type: "PLAINTEXT"
+          #  Value: !Sub "${AppConfig}"
+
+  CodeBuildTestProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub ${AWS::StackName}-test
+      Description: "CodeBuild project to test the Lex bot"
+      ServiceRole: !Ref CodeBuildServiceRoleARN
+      Artifacts:
+        Type: CODEPIPELINE
+      TimeoutInMinutes: 10
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: "testspec.yml"
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:3.0
+        EnvironmentVariables:
+          - Name: "BOT"
+            Type: "PLAINTEXT"
+            Value: !Sub "${BotName}"
+          - Name: "BOT_ALIAS"
+            Type: "PLAINTEXT"
+            Value: !Sub "${BotAlias}"
+          - Name: "S3_BUCKET"
+            Type: "PLAINTEXT"
+            Value: !Sub "${ArtifactStore}"
+
+  CodePipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: !Sub ${AWS::StackName}-pipeline
+      ArtifactStore:
+        Type: S3
+        Location: !Sub "${ArtifactBucketName}-${AWS::AccountId}"
+      RoleArn: !Ref CodePipelineRoleARN
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: !Sub ${AWS::StackName}
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Version: 1
+                Provider: CodeCommit
+              Configuration:
+                RepositoryName: !Ref Repo
+                PollForSourceChanges: true
+                BranchName: master
+              # ActionTypeId:
+              #   Category: Source
+              #   Owner: ThirdParty
+              #   Version: 1
+              #   Provider: GitHub
+              # Configuration:
+              #   Owner: !Ref GitHubRepoOwner
+              #   Repo: !Ref GitHubRepo
+              #   Branch: master
+              #   OAuthToken: !Ref GitHubToken
+              OutputArtifacts:
+                - Name: !Sub ${AWS::StackName}-source
+              RunOrder: 1
+        - Name: Build
+          Actions:
+            - Name: !Sub ${AWS::StackName}
+              InputArtifacts:
+                - Name: !Sub ${AWS::StackName}-source
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref CodeBuildProject
+              RunOrder: 1
+        - Name: Test
+          Actions:
+            - Name: !Sub ${AWS::StackName}
+              InputArtifacts:
+                - Name: !Sub ${AWS::StackName}-source
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref CodeBuildTestProject
+              RunOrder: 1
+

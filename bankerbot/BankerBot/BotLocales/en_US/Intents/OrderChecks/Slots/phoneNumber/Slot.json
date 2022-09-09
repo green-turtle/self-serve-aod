@@ -1,0 +1,31 @@
+{
+    "name": "phoneNumber",
+    "identifier": "LERVP6IOSB",
+    "description": null,
+    "slotTypeName": "AMAZON.PhoneNumber",
+    "obfuscationSetting": null,
+    "valueElicitationSetting": {
+        "promptSpecification": {
+            "allowInterrupt": true,
+            "messageGroupsList": [
+                {
+                    "message": {
+                        "imageResponseCard": null,
+                        "ssmlMessage": null,
+                        "customPayload": null,
+                        "plainTextMessage": {
+                            "value": "Please say or enter your 10-digit phone number."
+                        }
+                    },
+                    "variations": null
+                }
+            ],
+            "maxRetries": 2
+        },
+        "slotConstraint": "Required",
+        "defaultValueSpecification": null,
+        "sampleUtterances": null,
+        "waitAndContinueSpecification": null
+    },
+    "multipleValuesSetting": null
+}

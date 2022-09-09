@@ -1,0 +1,144 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+  Creates a Lex conversation logs data pipeline with Kinesis Data Firehose to S3 and Athena
+
+Parameters:
+  BotName:
+    Description: Input the name of your Lex bot
+    Type: String
+    Default: selfserve
+  LogGroupName:
+    Description: Input the name of the CloudWatch Log Group where your Lex bot conversation logs are configured
+    Type: String
+    Default: selfserve-logs
+  S3Bucket:
+    Description: S3 Bucket where the transformation Lambda ZIP file is stored
+    Type: String
+    Default: selfserve-artifactstore-687551564203
+  S3Object:
+    Description: Name of the transformation Lambda ZIP file
+    Type: String
+    Default: firehose-transform-2021-05-14.zip
+  CloudwatchLogsToKinesisRoleArn:
+    Description: IAM role for CloudWatch Logs to put records to Kinesis
+    Type: 'String'
+  GlueCrawlerRoleArn:
+    Description: IAM role for Glue to crawl the S3 bucket
+    Type: 'String'
+  KinesisFirehoseDeliveryRoleArn:
+    Description: IAM role for Kinesis to put objects to S3
+    Type: 'String'
+  LambdaTransformRoleArn:
+    Description: IAM role for Lambda to write CloudWatch Logs
+    Type: 'String'
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: Lex Bot
+      Parameters:
+      - BotName
+      - LogGroupName
+    - Label:
+        default: Lambda Code Location
+      Parameters:
+      - S3Bucket
+      - S3Object
+    - Label:
+        default: IAM roles
+      Parameters:
+      - CloudwatchLogsToKinesisRoleArn
+      - GlueCrawlerRoleArn
+      - KinesisFirehoseDeliveryRoleArn
+      - LambdaTransformRoleArn
+    ParameterLabels:
+      BotName:
+        default: Bot
+      LogGroupName:
+        default: CloudWatch Log Group for Lex Conversation Logs
+      S3Bucket:
+        default: Bucket
+      S3Object:
+        default: ZIP file
+
+Resources:
+  FirehoseTransformLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: !Ref S3Bucket
+        S3Key: !Ref S3Object
+      Description: This function performs a transformation on CloudWatch Logs data from Lex Conversation Logs, for Glue/Athena
+      Handler: lambda_function.handler
+      Role: !Ref LambdaTransformRoleArn
+      Runtime: python3.8
+      Timeout: '300'
+
+  FirehoseTransformLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 30
+      LogGroupName:
+        Fn::Join:
+        - ''
+        - - "/aws/lambda/"
+          - Ref: FirehoseTransformLambda
+
+  CWLogsDeliveryFirehose:
+    Type: 'AWS::KinesisFirehose::DeliveryStream'
+    Properties:
+      DeliveryStreamType: DirectPut
+      ExtendedS3DestinationConfiguration:
+        BucketARN: !GetAtt BotLogsS3Bucket.Arn
+        BufferingHints:
+          IntervalInSeconds: '60'
+          SizeInMBs: '1'
+        CompressionFormat: UNCOMPRESSED
+        RoleARN: !Ref KinesisFirehoseDeliveryRoleArn
+        ProcessingConfiguration:
+          Enabled: 'true'
+          Processors:
+            - Parameters:
+                - ParameterName: LambdaArn
+                  ParameterValue: !GetAtt FirehoseTransformLambda.Arn
+              Type: Lambda
+
+  BotLogsS3Bucket:
+    Type: 'AWS::S3::Bucket'
+
+  LexLogsDatabase:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: !Ref "AWS::AccountId"
+      DatabaseInput:
+        Description: "Database for Lex logs"
+        LocationUri: "TestLocationUri"
+
+  LexConversationLogsCrawler:
+    Type: AWS::Glue::Crawler
+    Properties:
+      Role: !Ref GlueCrawlerRoleArn
+      DatabaseName: !Ref LexLogsDatabase
+      Targets:
+        S3Targets:
+          - Path: !Ref BotLogsS3Bucket
+      Configuration: "{ \"Version\": 1.0, \"CrawlerOutput\": { \"Partitions\": { \"AddOrUpdateBehavior\": \"InheritFromTable\" } } }"
+      SchemaChangePolicy:
+        UpdateBehavior: "UPDATE_IN_DATABASE"
+        # UpdateBehavior: "LOG"
+        DeleteBehavior: "LOG"
+      Schedule:
+        # this cron expression will run every 10 minutes
+        ScheduleExpression: "cron(0/10 * * * ? *)"
+
+  Logsubscription:
+    Type: 'AWS::Logs::SubscriptionFilter'
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      DestinationArn: !GetAtt CWLogsDeliveryFirehose.Arn
+      FilterPattern: !Sub
+         - "{$.botName = ${BotName}}"
+         - { BotName: !Ref BotName }
+      RoleArn: !Ref CloudwatchLogsToKinesisRoleArn

@@ -1,0 +1,7 @@
+{
+    "botImportSpecification": {
+        "botName": "selfserve",
+        "roleArn": "BOT_BUILDER_ROLE",
+        "dataPrivacy": {"childDirected": false}
+    }
+}

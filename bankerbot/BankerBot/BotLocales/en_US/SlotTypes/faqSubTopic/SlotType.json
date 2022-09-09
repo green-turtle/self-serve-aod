@@ -1,0 +1,101 @@
+{
+    "name": "faqSubTopic",
+    "identifier": "LQU37VROPC",
+    "description": "FAQ subtopics",
+    "slotTypeValues": [
+        {
+            "sampleValue": {
+                "value": "checking"
+            },
+            "synonyms": [
+                {
+                    "value": "checking account"
+                }
+            ]
+        },
+        {
+            "sampleValue": {
+                "value": "auto"
+            },
+            "synonyms": [
+                {
+                    "value": "an auto"
+                }
+            ]
+        },
+        {
+            "sampleValue": {
+                "value": "mortgage"
+            },
+            "synonyms": [
+                {
+                    "value": "a home mortgage"
+                },
+                {
+                    "value": "a mortgage"
+                }
+            ]
+        },
+        {
+            "sampleValue": {
+                "value": "ATM"
+            },
+            "synonyms": [
+                {
+                    "value": "at an ATM"
+                }
+            ]
+        },
+        {
+            "sampleValue": {
+                "value": "personal"
+            },
+            "synonyms": null
+        },
+        {
+            "sampleValue": {
+                "value": "savings"
+            },
+            "synonyms": [
+                {
+                    "value": "savings account"
+                }
+            ]
+        },
+        {
+            "sampleValue": {
+                "value": "credit card"
+            },
+            "synonyms": [
+                {
+                    "value": "credit cards"
+                }
+            ]
+        },
+        {
+            "sampleValue": {
+                "value": "branch"
+            },
+            "synonyms": [
+                {
+                    "value": "at a branch"
+                }
+            ]
+        },
+        {
+            "sampleValue": {
+                "value": "mobile app"
+            },
+            "synonyms": [
+                {
+                    "value": "with the mobile app"
+                }
+            ]
+        }
+    ],
+    "parentSlotTypeSignature": null,
+    "valueSelectionSetting": {
+        "resolutionStrategy": "TOP_RESOLUTION",
+        "regexFilter": null
+    }
+}

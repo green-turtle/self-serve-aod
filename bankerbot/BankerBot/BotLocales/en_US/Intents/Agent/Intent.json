@@ -1,0 +1,58 @@
+{
+    "name": "Agent",
+    "identifier": "YCFYHWED8T",
+    "description": "Speak to agent intent",
+    "parentIntentSignature": null,
+    "sampleUtterances": [
+        {
+            "utterance": "speak to an agent"
+        },
+        {
+            "utterance": "agent"
+        },
+        {
+            "utterance": "talk to a customer service representative"
+        },
+        {
+            "utterance": "representative"
+        },
+        {
+            "utterance": "C.S.R."
+        },
+        {
+            "utterance": "can I talk to real person"
+        },
+        {
+            "utterance": "can I speak with a human"
+        },
+        {
+            "utterance": "zero"
+        }
+    ],
+    "intentConfirmationSetting": null,
+    "intentClosingSetting": {
+        "isActive": true,
+        "closingResponse": {
+            "allowInterrupt": true,
+            "messageGroupsList": [
+                {
+                    "message": {
+                        "imageResponseCard": null,
+                        "ssmlMessage": null,
+                        "customPayload": null,
+                        "plainTextMessage": {
+                            "value": "No problem, let me connect you to an agent now."
+                        }
+                    },
+                    "variations": null
+                }
+            ]
+        }
+    },
+    "inputContexts": null,
+    "outputContexts": null,
+    "kendraConfiguration": null,
+    "dialogCodeHook": null,
+    "fulfillmentCodeHook": null,
+    "slotPriorities": []
+}

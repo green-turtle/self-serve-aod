@@ -1,0 +1,31 @@
+{
+    "name": "topic",
+    "identifier": "LERVP6IOSB",
+    "description": null,
+    "slotTypeName": "faqTopic",
+    "obfuscationSetting": null,
+    "valueElicitationSetting": {
+        "promptSpecification": {
+            "allowInterrupt": true,
+            "messageGroupsList": [
+                {
+                    "message": {
+                        "imageResponseCard": null,
+                        "ssmlMessage": null,
+                        "customPayload": null,
+                        "plainTextMessage": {
+                            "value": "What topic?"
+                        }
+                    },
+                    "variations": null
+                }
+            ],
+            "maxRetries": 2
+        },
+        "slotConstraint": "Optional",
+        "defaultValueSpecification": null,
+        "sampleUtterances": null,
+        "waitAndContinueSpecification": null
+    },
+    "multipleValuesSetting": null
+}

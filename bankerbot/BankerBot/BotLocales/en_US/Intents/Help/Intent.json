@@ -1,0 +1,49 @@
+{
+    "name": "Help",
+    "identifier": "YCFYHWED8U",
+    "description": "Help intent",
+    "parentIntentSignature": null,
+    "sampleUtterances": [
+        {
+            "utterance": "help"
+        },
+        {
+            "utterance": "what can I say"
+        },
+        {
+            "utterance": "what are my options"
+        },
+        {
+            "utterance": "tell me the options again"
+        },
+        {
+            "utterance": "options"
+        }
+    ],
+    "intentConfirmationSetting": null,
+    "intentClosingSetting": {
+        "isActive": true,
+        "closingResponse": {
+            "allowInterrupt": true,
+            "messageGroupsList": [
+                {
+                    "message": {
+                        "imageResponseCard": null,
+                        "ssmlMessage": null,
+                        "customPayload": null,
+                        "plainTextMessage": {
+                            "value": "You can check account balances, transfer funds, ask general questions, or speak to a customer service representative."
+                        }
+                    },
+                    "variations": null
+                }
+            ]
+        }
+    },
+    "inputContexts": null,
+    "outputContexts": null,
+    "kendraConfiguration": null,
+    "dialogCodeHook": null,
+    "fulfillmentCodeHook": null,
+    "slotPriorities": []
+}

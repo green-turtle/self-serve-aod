@@ -1,0 +1,56 @@
+{
+    "name": "CheckBalance",
+    "identifier": "QLSIXIDNJC",
+    "description": "Intent to check the balance in the specified account type",
+    "parentIntentSignature": null,
+    "sampleUtterances": [
+        {
+            "utterance": "What’s the balance in my account ?"
+        },
+        {
+            "utterance": "Check my account balance"
+        },
+        {
+            "utterance": "What’s the balance in my {accountType} account ?"
+        },
+        {
+            "utterance": "How much do I have in {accountType} ?"
+        },
+        {
+            "utterance": "I want to check the balance"
+        },
+        {
+            "utterance": "Can you help me with account balance ?"
+        },
+        {
+            "utterance": "Balance in {accountType}"
+        }
+    ],
+    "intentConfirmationSetting": null,
+    "intentClosingSetting": null,
+    "inputContexts": null,
+    "outputContexts": [
+        {
+            "name": "contextCheckBalance",
+            "timeToLiveInSeconds": 90,
+            "turnsToLive": 5
+        }
+    ],
+    "kendraConfiguration": null,
+    "dialogCodeHook": null,
+    "fulfillmentCodeHook": {
+        "fulfillmentUpdatesSpecification": null,
+        "postFulfillmentStatusSpecification": null,
+        "enabled": true
+    },
+    "slotPriorities": [
+        {
+            "priority": 1,
+            "slotName": "accountType"
+        },
+        {
+            "priority": 2,
+            "slotName": "dateOfBirth"
+        }
+    ]
+}

@@ -1,0 +1,20 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo "Upgrading AWS CLI, requires 1.18.38 or later"
+      - pip install awscli --upgrade --user
+      - aws --version
+      - echo "Install jq for test scripts"
+      - wget --no-verbose -O jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
+      - chmod +x ./jq
+      - cp jq /usr/bin
+  build:
+    commands:
+      - echo Test run started on `date`
+      - bash test-all.sh
+  post_build:
+    commands:
+      - echo Test run completed on `date`
+

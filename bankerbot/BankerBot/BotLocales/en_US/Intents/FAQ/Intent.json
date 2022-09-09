@@ -1,0 +1,51 @@
+{
+    "name": "FAQ",
+    "identifier": "QLSIXIDNJE",
+    "description": "Intent to check the balance in the specified account type",
+    "parentIntentSignature": null,
+    "sampleUtterances": [
+        {
+            "utterance": "{question} {topic} {subtopic}"
+        },
+        {
+            "utterance": "{topic} {subtopic}"
+        },
+        {
+            "utterance": "{question} {topic}"
+        },
+        {
+            "utterance": "{topic}"
+        }
+    ],
+    "intentConfirmationSetting": null,
+    "intentClosingSetting": null,
+    "inputContexts": null,
+    "outputContexts": [
+        {
+            "name": "contextFAQ",
+            "timeToLiveInSeconds": 90,
+            "turnsToLive": 5
+        }
+    ],
+    "kendraConfiguration": null,
+    "dialogCodeHook": null,
+    "fulfillmentCodeHook": {
+        "fulfillmentUpdatesSpecification": null,
+        "postFulfillmentStatusSpecification": null,
+        "enabled": true
+    },
+    "slotPriorities": [
+        {
+            "priority": 1,
+            "slotName": "question"
+        },
+        {
+            "priority": 2,
+            "slotName": "topic"
+        },
+        {
+            "priority": 3,
+            "slotName": "subtopic"
+        }
+    ]
+}

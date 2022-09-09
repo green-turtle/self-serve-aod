@@ -1,0 +1,48 @@
+{
+    "name": "loanType",
+    "identifier": "LQU37VRXYZ",
+    "description": null,
+    "slotTypeValues": [
+        {
+            "sampleValue": {
+                "value": "Auto"
+            },
+            "synonyms": [
+                {
+                    "value": "Auto Loan"
+                },
+                {
+                    "value": "Car Loan"
+                }
+            ]
+        },
+        {
+            "sampleValue": {
+                "value": "Student"
+            },
+            "synonyms": [
+                {
+                    "value": "Student Loan"
+                },
+                {
+                    "value": "Education Loan"
+                }
+            ]
+        },
+        {
+            "sampleValue": {
+                "value": "Personal"
+            },
+            "synonyms": [
+                {
+                    "value": "Personal Loan"
+                }
+            ]
+        }
+    ],
+    "parentSlotTypeSignature": null,
+    "valueSelectionSetting": {
+        "resolutionStrategy": "TOP_RESOLUTION",
+        "regexFilter": null
+    }
+}

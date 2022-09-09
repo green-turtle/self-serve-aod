@@ -1,0 +1,101 @@
+{
+    "name": "OrderChecks",
+    "identifier": "YCFYHWED8S",
+    "description": "Order Checks intent",
+    "parentIntentSignature": null,
+    "sampleUtterances": [
+        {
+            "utterance": "i want to order more checks"
+        },
+        {
+            "utterance": "can you send me more checks?"
+        },
+        {
+            "utterance": "i ran out of checks"
+        },
+        {
+            "utterance": "how do i order more checks?"
+        },
+        {
+            "utterance": "order checks please"
+        }
+    ],
+    "intentConfirmationSetting": {
+        "isActive": true,
+        "declinationResponse": {
+            "allowInterrupt": true,
+            "messageGroupsList": [
+                {
+                    "message": {
+                        "imageResponseCard": null,
+                        "ssmlMessage": null,
+                        "customPayload": null,
+                        "plainTextMessage": {
+                            "value": "The order has been cancelled"
+                        }
+                    },
+                    "variations": null
+                }
+            ]
+        },
+        "promptSpecification": {
+            "allowInterrupt": true,
+            "messageGroupsList": [
+                {
+                    "message": {
+                        "imageResponseCard": null,
+                        "ssmlMessage": null,
+                        "customPayload": null,
+                        "plainTextMessage": {
+                            "value": "A fee of $10 will be withdrawn from your Checking account. Can I go ahead with the check order?"
+                        }
+                    },
+                    "variations": null
+                }
+            ],
+            "maxRetries": 2
+        }
+    },
+    "intentClosingSetting": {
+        "isActive": true,
+        "closingResponse": {
+            "allowInterrupt": true,
+            "messageGroupsList": [
+                {
+                    "message": {
+                        "imageResponseCard": null,
+                        "ssmlMessage": null,
+                        "customPayload": null,
+                        "plainTextMessage": {
+                            "value": "The order is complete. $10 has been deducted from your checking account and checks will be shipped to your home address."
+                        }
+                    },
+                    "variations": null
+                }
+            ]
+        }
+    },
+    "inputContexts": null,
+    "outputContexts": [
+        {
+            "name": "contextOrderChecks",
+            "timeToLiveInSeconds": 90,
+            "turnsToLive": 5
+        }
+    ],
+    "kendraConfiguration": null,
+    "dialogCodeHook": {
+        "enabled": true
+    },
+    "fulfillmentCodeHook": {
+        "fulfillmentUpdatesSpecification": null,
+        "postFulfillmentStatusSpecification": null,
+        "enabled": true
+    },
+    "slotPriorities": [
+        {
+            "priority": 1,
+            "slotName": "phoneNumber"
+        }
+    ]
+}

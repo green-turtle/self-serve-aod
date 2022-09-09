@@ -1,0 +1,10 @@
+{
+    "name": "BankerBot",
+    "version": "DRAFT",
+    "description": "Example Banker bot to demonstrate Lex V2 capabilities",
+    "identifier": "7I8RD64JJS",
+    "dataPrivacy": {
+        "childDirected": false
+    },
+    "idleSessionTTLInSeconds": 300
+}

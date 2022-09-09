@@ -1,0 +1,31 @@
+{
+    "name": "question",
+    "identifier": "GFFHTEDDVA",
+    "description": "Different types of FAQ questions",
+    "slotTypeName": "faqQuestion",
+    "obfuscationSetting": null,
+    "valueElicitationSetting": {
+        "promptSpecification": {
+            "allowInterrupt": true,
+            "messageGroupsList": [
+                {
+                    "message": {
+                        "imageResponseCard": null,
+                        "ssmlMessage": null,
+                        "customPayload": null,
+                        "plainTextMessage": {
+                            "value": "How can I help?"
+                        }
+                    },
+                    "variations": null
+                }
+            ],
+            "maxRetries": 2
+        },
+        "slotConstraint": "Optional",
+        "defaultValueSpecification": null,
+        "sampleUtterances": null,
+        "waitAndContinueSpecification": null
+    },
+    "multipleValuesSetting": null
+}

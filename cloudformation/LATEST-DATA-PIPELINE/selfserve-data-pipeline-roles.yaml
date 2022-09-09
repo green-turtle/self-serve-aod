@@ -1,0 +1,171 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+  Creates the IAM roles for a Lex conversation logs data pipeline with Kinesis Data Firehose to S3 and Athena
+
+Parameters:
+  DataPipelineStackName:
+    Description: Input the name of your data pipeline CloudFormation stack
+    Type: String
+    Default: selfserve-data-pipeline
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: Data Pipeline Stack
+      Parameters:
+      - DataPipelineStackName
+
+Resources:
+  LambdaTransformRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+          Action: sts:AssumeRole
+      Policies:
+      - PolicyName: write-cloudwatch-logs
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Sid: WriteCloudWatchLogs
+            Effect: Allow
+            Action:
+            - logs:CreateLogStream
+            - logs:CreateLogGroup
+            - logs:PutLogEvents
+            Resource: 
+                !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${DataPipelineStackName}-FirehoseTransformLambda-*
+
+  KinesisFirehoseDeliveryRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - firehose.amazonaws.com
+              - s3.amazonaws.com
+            Action: sts:AssumeRole
+        Path: /
+        Policies:
+          - PolicyName: deliveryToS3
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+              - Sid: deliveryToS3
+                Effect: Allow
+                Action:
+                - s3:AbortMultipartUpload
+                - s3:GetBucketLocation
+                - s3:GetObject
+                - s3:ListBucket
+                - s3:ListBucketMultipartUploads
+                - s3:PutObject
+                Resource:
+                  !Sub arn:aws:s3:::${DataPipelineStackName}-botlogss3bucket-*/*
+          - PolicyName: invokeLambda
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+              - Sid: lambda
+                Effect: Allow
+                Action:
+                - lambda:InvokeFunction
+                Resource:
+                    !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${DataPipelineStackName}-FirehoseTransformLambda-*
+
+  GlueCrawlerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "glue.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole
+      Path: "/"
+      Policies:
+        -
+          PolicyName: "crawlS3Bucket"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: crawlS3Bucket
+                Effect: "Allow"
+                Action:
+                - s3:ListBucket
+                - s3:GetObject
+                Resource: 
+                  !Sub arn:aws:s3:::${DataPipelineStackName}-botlogss3bucket-*/*
+
+  CloudwatchLogsToKinesisRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Action: 'sts:AssumeRole'
+            Principal:
+              Service:
+                - Fn::Join:
+                    - '.'
+                    - - logs
+                      - !Ref "AWS::Region"
+                      - amazonaws.com
+      Path: '/'
+      Policies:
+        - PolicyName: AllowCloudwatchToKinesisPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: 'Allow'
+                Action:
+                - firehose:PutRecord
+                - firehose:PutRecordBatch
+                Resource: 
+                    !Sub arn:aws:firehose:${AWS::Region}:${AWS::AccountId}:deliverystream/${DataPipelineStackName}-CWLogsDeliveryFirehose-*
+              - Effect: 'Allow'
+                Action: 'iam:PassRole'
+                Resource:
+                  Fn::Join:
+                    - ':'
+                    - - 'arn:aws:iam:'
+                      - !Ref "AWS::AccountId"
+                      - 'role/CWLtoKinesisRole'
+
+Outputs:
+  CloudwatchLogsToKinesisRoleArn:
+    Description: CloudWatch Logs - Kinesis::PutRecords
+    Value: !GetAtt CloudwatchLogsToKinesisRole.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-CloudwatchLogsToKinesisRoleArn"
+  KinesisFirehoseDeliveryRoleArn:
+    Description: Kinesis - S3::PutObjects and Lambda::InvokeFunction
+    Value: !GetAtt KinesisFirehoseDeliveryRole.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-KinesisFirehoseDeliveryRoleArn"
+  LambdaTransformRoleArn:
+    Description: Lambda - CloudWatch Logs::PutLogEvents
+    Value: !GetAtt LambdaTransformRole.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-LambdaTransformRoleArn"
+  GlueCrawlerRoleArn:
+    Description: Glue - AWSGlueServiceRole and S3::GetObject
+    Value: !GetAtt GlueCrawlerRole.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-GlueCrawlerRoleArn"

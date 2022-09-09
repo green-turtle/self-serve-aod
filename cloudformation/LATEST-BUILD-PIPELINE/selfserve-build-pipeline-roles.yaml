@@ -1,0 +1,428 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: >
+  This template provides the IAM roles needed by the Lex build pipeline stack
+
+Parameters:
+  BotName:
+    Type: String
+    Default: 'selfserve'
+    Description: Name of the Lex bot
+    MinLength: 1
+  ConversationLogsGroupName:
+    Type: String
+    Default: 'selfserve-logs'
+    Description: Name of the CloudWatch Logs group for Lex conversation logs
+    MinLength: 1
+  ArtifactStore:
+    Type: String
+    Default: 'selfserve-artifactstore'
+    Description: S3 bucket that is used for the artifact store.
+    MinLength: 1
+  Repo:
+    Type: String
+    Default: 'selfserve'
+    Description: The CodeCommit repository name
+    MinLength: 1
+  BuildProject:
+    Type: String
+    Default: 'selfserve-build-pipeline-build'
+    Description: Name of the CodeBuild project to build the bot
+    MinLength: 1
+  TestProject:
+    Type: String
+    Default: 'selfserve-build-pipeline-test'
+    Description: Name of the CodeBuild project to test the bot
+    MinLength: 1
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Role Parameters
+        Parameters:
+          - BotName
+          - ConversationLogsGroupName
+          - Repo
+          - ArtifactStore
+          - BuildPipelineStackName
+          - BuildProject
+          - TestProject
+
+Resources:
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:  "sts:AssumeRole"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+      Policies:
+        - PolicyName: !Sub ${AWS::StackName}-lambda-loggroups-put
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+            - Effect: Allow
+              Action:
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: 
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${BotName}*
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+              Resource: 
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:*
+        - PolicyName: !Sub ${AWS::StackName}-lambda-lex
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+            - Effect: Allow
+              Action:
+                - "lex:ListBots"
+                - "lex:ListBotAliases"
+              Resource:
+                - !Sub arn:aws:lex:${AWS::Region}:${AWS::AccountId}:*
+                - !Sub arn:aws:lex:${AWS::Region}:${AWS::AccountId}:bot/*
+            - Effect: "Allow"
+              Action:
+                - "lex:RecognizeText"
+              Resource:
+                - !Sub arn:aws:lex:${AWS::Region}:${AWS::AccountId}:bot-alias/*
+  CodeBuildServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /service-role/
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Principal:
+              Service:
+                - "codebuild.amazonaws.com"
+            Effect: "Allow"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: !Sub ${AWS::StackName}-codebuild-build
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "lambda:GetLayerVersion"
+                  - "lambda:ListLayerVersions"
+                  - "lambda:PublishLayerVersion"
+                Resource:
+                  - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:${BotName}*
+              - Effect: "Allow"
+                Action:
+                  - "lambda:AddPermission"
+                  - "lambda:CreateFunction"
+                  - "lambda:DeleteFunction"
+                  - "lambda:GetFunction"
+                  - "lambda:UpdateFunctionCode"
+                  - "lambda:UpdateFunctionConfiguration"
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource:
+                  - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${BotName}*
+              - Effect: "Allow"
+                Action:
+                  - "lex:CreateUploadUrl"
+                  - "lex:StartImport"
+                  - "lex:DescribeImport"
+                  - "lex:CreateBotLocale"
+                  - "lex:UpdateBotLocale"
+                  - "lex:DeleteBotLocale"
+                  - "lex:BuildBotLocale"
+                  - "lex:DescribeBotLocale"
+                  - "lex:DeleteBotChannel"
+                  - "lex:CreateBot"
+                  - "lex:UpdateBot"
+                  - "lex:DeleteBot"
+                  - "lex:DescribeBot"
+                  - "lex:ListBots"
+                  - "lex:CreateLocale"
+                  - "lex:UpdateLocale"
+                  - "lex:DeleteLocale"
+                  - "lex:CreateIntent"
+                  - "lex:UpdateIntent"
+                  - "lex:DeleteIntent"
+                  - "lex:CreateSlot"
+                  - "lex:UpdateSlot"
+                  - "lex:DeleteSlot"
+                  - "lex:CreateSlotType"
+                  - "lex:UpdateSlotType"
+                  - "lex:DeleteSlotType"
+                  - "lex:CreateBotAlias"
+                  - "lex:UpdateBotAlias"
+                  - "lex:DeleteBotAlias"
+                  - "lex:DescribeBotAlias"
+                  - "lex:ListBotAliases"
+                  - "lex:CreateCustomVocabulary"
+                  - "lex:UpdateCustomVocabulary"
+                  - "lex:DeleteCustomVocabulary"
+                  - "lex:CreateIntentVersion"
+                  - "lex:CreateSlotTypeVersion"
+                  - "lex:CreateBotVersion"
+                  - "lex:DescribeBotVersion"
+                  - "lex:DeleteSlotType"
+                  - "lex:DeleteBotVersion"
+                Resource:
+                  - !Sub arn:aws:lex:${AWS::Region}:${AWS::AccountId}:*
+                  - !Sub arn:aws:lex:${AWS::Region}:${AWS::AccountId}:bot/*
+              - Effect: "Allow"
+                Action:
+                  - "lex:RecognizeText"
+                  - "lex:DeleteResourcePolicy"
+                Resource:
+                  - !Sub arn:aws:lex:${AWS::Region}:${AWS::AccountId}:bot-alias/*
+              - Effect: "Allow"
+                Action:
+                  - "iam:PassRole"
+                Resource:
+                  - !GetAtt LambdaExecutionRole.Arn
+                  - !GetAtt LexConversationLogsRole.Arn
+                  - !GetAtt BotBuilderRole.Arn
+              - Effect: "Allow"
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource:
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/*
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:CopyObject
+                Resource:
+                  - !Sub "arn:aws:s3:::${ArtifactStore}-${AWS::AccountId}"
+                  - !Sub "arn:aws:s3:::${ArtifactStore}-${AWS::AccountId}/*"
+        - PolicyName: !Sub ${AWS::StackName}-codebuild-loggroups-write
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Sid: WriteCloudWatchLogs
+              Effect: Allow
+              Action:
+              - logs:CreateLogStream
+              - logs:DescribeLogGroups
+              - logs:DescribeLogStreams
+              - logs:DeleteLogStream 
+              - logs:GetLogEvents 
+              - logs:PutLogEvents
+              - logs:GetLogRecord 
+              - logs:PutDestination 
+              - logs:PutSubscriptionFilter
+              Resource: 
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${ConversationLogsGroupName}:*
+
+  BotBuilderRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /service-role/
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Principal:
+              Service:
+                - "lexv2.amazonaws.com"
+            Effect: "Allow"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: !Sub ${AWS::StackName}-bot-runtime
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "lex:CreateUploadUrl"
+                  - "lex:StartImport"
+                  - "lex:CreateBotLocale"
+                  - "lex:UpdateBotLocale"
+                  - "lex:CreateLocale"
+                  - "lex:UpdateLocale"
+                  - "lex:CreateIntent"
+                  - "lex:UpdateIntent"
+                  - "lex:CreateSlot"
+                  - "lex:UpdateSlot"
+                  - "lex:CreateSlotType"
+                  - "lex:UpdateSlotType"
+                  - "lex:CreateCustomVocabulary"
+                  - "lex:UpdateCustomVocabulary"
+                  - "lex:CreateIntentVersion"
+                  - "lex:CreateSlotTypeVersion"
+                  - "lex:CreateBotVersion"
+                Resource:
+                  - !Sub arn:aws:lex:${AWS::Region}:${AWS::AccountId}:*
+                  - !Sub arn:aws:lex:${AWS::Region}:${AWS::AccountId}:bot/*
+              - Effect: "Allow"
+                Action:
+                  - "lex:RecognizeText"
+                Resource:
+                  - !Sub arn:aws:lex:${AWS::Region}:${AWS::AccountId}:bot-alias/*
+              - Effect: "Allow"
+                Action:
+                  - "iam:PassRole"
+                Resource:
+                  - !GetAtt LambdaExecutionRole.Arn
+                  - !GetAtt LexConversationLogsRole.Arn
+              - Effect: "Allow"
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource:
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/*
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:CopyObject
+                Resource:
+                  - !Sub "arn:aws:s3:::${ArtifactStore}-${AWS::AccountId}"
+                  - !Sub "arn:aws:s3:::${ArtifactStore}-${AWS::AccountId}/*"
+        - PolicyName: !Sub ${AWS::StackName}-bot-loggroups-write
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Sid: WriteCloudWatchLogs
+              Effect: Allow
+              Action:
+              - logs:CreateLogStream
+              - logs:DescribeLogGroups
+              - logs:DescribeLogStreams
+              - logs:DeleteLogStream 
+              - logs:GetLogEvents 
+              - logs:GetLogRecord 
+              - logs:PutDestination 
+              - logs:PutSubscriptionFilter
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              Resource: 
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${ConversationLogsGroupName}:*
+
+  CodePipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Principal:
+             Service:
+               - codepipeline.amazonaws.com
+            Effect: Allow
+            Action:
+                - sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub ${AWS::StackName}-codepipeline-s3-readwrite
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:Get*
+                  - s3:Head*
+                  - s3:List*
+                  - s3:CreateMultipartUpload
+                  - s3:CompleteMultipartUpload
+                  - s3:AbortMultipartUpload
+                  - s3:CopyObject
+                  - s3:PutObject*
+                  - s3:DeleteObject*
+                  - s3:Upload*
+                Resource: 
+                  - !Sub "arn:aws:s3:::${ArtifactStore}-${AWS::AccountId}"
+                  - !Sub "arn:aws:s3:::${ArtifactStore}-${AWS::AccountId}/*"
+        - PolicyName: !Sub ${AWS::StackName}-codepipeline-codebuild-startbuild
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - codebuild:BatchGetBuilds
+                  - codebuild:StartBuild
+                Resource: 
+                  - !Sub "arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:project/${BuildProject}"
+                  - !Sub "arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:project/${TestProject}"
+        - PolicyName: !Sub ${AWS::StackName}-codepipeline-codecommit-get
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - codecommit:GetBranch
+                  - codecommit:GetCommit
+                  - codecommit:UploadArchive
+                  - codecommit:GetUploadArchiveStatus
+                  - codecommit:CancelUploadArchive
+                Resource: 
+                  Fn::Join:
+                  - ''
+                  - - 'arn:aws:codecommit:'
+                    - !Ref "AWS::Region"
+                    - ':'
+                    - !Ref "AWS::AccountId"
+                    - ':'
+                    - !Ref Repo
+
+  LexConversationLogsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: lexv2.amazonaws.com
+          Action: sts:AssumeRole
+      Policies:
+      - PolicyName: !Sub ${AWS::StackName}-lex-loggroups-put
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Sid: WriteCloudWatchLogs
+            Effect: Allow
+            Action:
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Resource: 
+                - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${ConversationLogsGroupName}:*
+
+Outputs:
+  LambdaExecutionRoleOut:
+    Description: LambdaExecutionRoleARN
+    Value: !GetAtt LambdaExecutionRole.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-LambdaExecutionRoleARN"
+  CodePipelineRoleOut:
+    Description: CodePipelineRoleARN
+    Value: !GetAtt CodePipelineRole.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-CodePipelineRoleARN"
+  CodeBuildServiceRoleOut:
+    Description: CodeBuildServiceRoleARN
+    Value: !GetAtt CodeBuildServiceRole.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-CodeBuildServiceRoleARN"
+  BotBuilderRoleOut:
+    Description: BotBuilderRoleARN
+    Value: !GetAtt BotBuilderRole.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-BotBuilderRoleARN"
+  LexConversationLogsRoleOut:
+    Description: LexConversationLogsRoleARN
+    Value: !GetAtt LexConversationLogsRole.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-LexConversationLogsRoleARN"
+
